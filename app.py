@@ -24,12 +24,12 @@ def shorten_url():
 
     original_url = data["url"].strip()
 
-    # ✅ الحل هنا
+    
     if not original_url.startswith(("http://", "https://")):
         original_url = "https://" + original_url
 
     short_code = str(counter)
-    url_store[short_code] = original_url
+    url_store[short_code] = original_ur
     counter += 1
 
     short_url = f"/{short_code}"
