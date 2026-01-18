@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 
 app = Flask(__name__)
 
-# 👇 جديد
 app.config["TESTING"] = False
 
 # ================= CONFIG =================
@@ -13,8 +12,6 @@ USERNAME = "nouh"
 DEFAULT_EXPIRATION_HOURS = 1
 RATE_LIMIT_SECONDS = 2
 # =========================================
-
-counter = 1
 
 # short_code -> { url, expires_at }
 url_store = {}
@@ -38,8 +35,6 @@ def health():
 
 @app.route("/shorten", methods=["POST"])
 def shorten_url():
-    global counter
-
     ip = request.remote_addr
     now = time()
 
@@ -124,4 +119,4 @@ def preview(short_code):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
