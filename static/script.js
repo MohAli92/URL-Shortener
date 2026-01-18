@@ -51,3 +51,9 @@ function shortenUrl() {
         }, 400);
     });
 }
+
+document.getElementById("urlInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        shortenUrl();
+    }
+});
