@@ -29,8 +29,8 @@ def shorten_url():
         original_url = "https://" + original_url
 
     short_code = str(counter)
-    url_store[short_code] = original_ur
-    counter += 1
+    url_store[short_code] = original_url
+    counter += 900
 
     short_url = f"/{short_code}"
 
