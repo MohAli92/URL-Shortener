@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, request, redirect, render_template
 from datetime import datetime, timedelta
 from time import time
-from urllib.parse import urlparse   # ✅ إضافة بسيطة
+from urllib.parse import urlparse
 
 app = Flask(__name__)
+
+# 👇 جديد
+app.config["TESTING"] = False
 
 # ================= CONFIG =================
 USERNAME = "nouh"
@@ -41,10 +44,11 @@ def shorten_url():
     now = time()
 
     # ---------- Rate limiting ----------
-    last_time = rate_limit.get(ip, 0)
-    if now - last_time < RATE_LIMIT_SECONDS:
-        return jsonify(error="Too many requests"), 429
-    rate_limit[ip] = now
+    if not app.config.get("TESTING"):
+        last_time = rate_limit.get(ip, 0)
+        if now - last_time < RATE_LIMIT_SECONDS:
+            return jsonify(error="Too many requests"), 429
+        rate_limit[ip] = now
     # -----------------------------------
 
     data = request.get_json(silent=True) or request.form
@@ -62,13 +66,11 @@ def shorten_url():
     if original_url in reverse_store:
         short_code = reverse_store[original_url]
     else:
-        # ✅ الجديد هنا
         if alias:
             if alias in url_store:
                 return jsonify(error="Alias already in use"), 409
             short_code = alias
         else:
-            # 🧠 نطلع اسم الموقع تلقائي
             parsed = urlparse(original_url)
             domain = parsed.netloc.lower()
 
@@ -78,7 +80,6 @@ def shorten_url():
             base_name = domain.split(".")[0]
             short_code = base_name
 
-            # لو الاسم مستخدم قبل كده نزود رقم
             i = 2
             while short_code in url_store:
                 short_code = f"{base_name}{i}"

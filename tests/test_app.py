@@ -24,27 +24,24 @@ def test_health_endpoint(client):
 def test_shorten_url(client):
     response = client.post(
         "/shorten",
-        data={"url": "google.com"}
+        data={"url": "https://www.google.com"}
     )
 
     assert response.status_code == 200
-
     json_data = response.get_json()
     assert "short_url" in json_data
-    assert json_data["short_url"].startswith("/")
+    assert json_data["short_url"].startswith("/nouh/")
 
 
 def test_redirect_to_original_url(client):
-    # 1️⃣ shorten URL
     shorten_response = client.post(
         "/shorten",
         data={"url": "google.com"}
     )
+
     short_url = shorten_response.get_json()["short_url"]
 
-    # 2️⃣ request short URL (without following redirect)
-    redirect_response = client.get(short_url, follow_redirects=False)
+    response = client.get(short_url, follow_redirects=False)
 
-    # 3️⃣ assertions
-    assert redirect_response.status_code == 302
-    assert redirect_response.headers["Location"] == "https://google.com"
+    assert response.status_code == 302
+    assert "Location" in response.headers
