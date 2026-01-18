@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>⚡ URL Shortener</h1>
+    <p>Fast. Simple. Reliable.</p>
+
+    <div class="stats">
+        <div class="stat">
+            <span id="links">0</span>
+            <div>Links</div>
+        </div>
+        <div class="stat">
+            <span id="redirects">0</span>
+            <div>Redirects</div>
+        </div>
+        <div class="stat">
+            <span>99%</span>
+            <div>Uptime</div>
+        </div>
+    </div>
+
+    <input type="text" id="urlInput" placeholder="Paste your long URL here">
+
+    <button onclick="shortenUrl()">Shorten URL 🚀</button>
+
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
