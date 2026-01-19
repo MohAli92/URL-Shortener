@@ -51,33 +51,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Copy repository files to remote server using SCP. Configure these secrets in your
-      # repository settings: `SSH_HOST`, `SSH_USER`, `SSH_KEY`, optional `SSH_PORT`, and `DEPLOY_PATH`.
-      - name: Copy files to remote
-        uses: appleboy/scp-action@master
+      # Use an SSH agent to load the private key and then use scp/ssh for file transfer
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.8.1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "./"
-          target: ${{ secrets.DEPLOY_PATH }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # Run remote commands over SSH to build and (re)start the Docker container
+      - name: Copy files with scp
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+          scp -P "$PORT" -o StrictHostKeyChecking=no -r ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
+
       - name: Run remote deploy commands
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            cd ${{ secrets.DEPLOY_PATH }}
-            docker build -t url-shortener:latest .
-            docker stop url-shortener || true
-            docker rm url-shortener || true
-            docker run -d --restart unless-stopped -p 80:5000 --name url-shortener url-shortener:latest
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+          ssh -p "$PORT" -o StrictHostKeyChecking=no "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
+          set -e
+          cd "$DEPLOY_PATH"
+          docker build -t url-shortener:latest .
+          docker stop url-shortener || true
+          docker rm url-shortener || true
+          docker run -d --restart unless-stopped -p 80:5000 --name url-shortener url-shortener:latest
+          EOF
 
 
 
