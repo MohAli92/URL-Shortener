@@ -34,7 +34,9 @@ jobs:
       # “For simplicity, core dependencies are installed directly in the CI pipeline.”
 
 
-  
+    - name: Run tests
+      run: |
+        pytest
       # “This step acts as a quality gate that prevents faulty code from being merged.”
 
 
