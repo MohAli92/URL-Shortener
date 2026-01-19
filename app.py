@@ -59,7 +59,7 @@ def shorten_url():
 
     # ---------- Deduplication ----------
     if original_url in reverse_store:
-        short_code = reverse_store[original_url]
+        short_code = reverse_store[original_]
     else:
         if alias:
             if alias in url_store:
