@@ -21,7 +21,7 @@ def test_health_endpoint(client):
     assert response.get_json()["status"] == "ok"
 
 
-def test_shorten_url(client):
+def test_shorten_url():
     response = client.post(
         "/shorten",
         data={"url": "https://www.google.com"}
