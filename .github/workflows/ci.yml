@@ -11,7 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+# Jobs run on isolated Linux servers provided by GitHub Actions.
 
 
     steps:
@@ -39,7 +39,20 @@ jobs:
         pytest
       # “This step acts as a quality gate that prevents faulty code from being merged.”
 
+      jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+
+
+
+
+        
 
       # “This CI pipeline automatically builds the Flask application, installs dependencies,
       #   and runs automated tests on every push or pull request to the main branch.”
