@@ -25,7 +25,7 @@ rate_limit = {}
 
 @app.route("/")
 def home():
-    return 
+    return render_template("index.html")
 
 
 @app.route("/health")
@@ -55,7 +55,7 @@ def shorten_url():
     if not original_url.startswith(("http://", "https://")):
         original_url = "https://" + original_url
 
-    alias = data.get("alias")
+    alias = data.get
 
     # ---------- Deduplication ----------
     if original_url in reverse_store:
