@@ -3,47 +3,24 @@ name: Flask CI Pipeline
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-# The pipeline automatically validates code before and after merging into the main branch.
 
 jobs:
-  test:
+  ci-cd:
     runs-on: ubuntu-latest
-    # Jobs run on isolated Linux servers provided by GitHub Actions.
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flask pytest
 
       - name: Run tests
         run: |
+          pip install flask pytest
           pytest
 
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Build Docker image
-        run: docker build -t url-shortener .
+        run: |
+          docker build -t url-shortener .
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: docker-build
-    steps:
       - name: Deploy application (Docker Run)
         run: |
           docker stop url-shortener || true
