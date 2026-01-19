@@ -55,7 +55,7 @@ def shorten_url():
     if not original_url.startswith(("http://", "https://")):
         original_url = "https://" + original_url
 
-    alias = data.get
+    alias = data.get("alias")
 
     # ---------- Deduplication ----------
     if original_url in reverse_store:
