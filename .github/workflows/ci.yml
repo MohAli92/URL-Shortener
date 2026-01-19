@@ -44,53 +44,6 @@ jobs:
         run: docker build -t my-app .
 
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [test, docker-build]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Use an SSH agent to load the private key and then use scp/ssh for file transfer
-      - name: Start ssh-agent and add key
-        run: |
-          cat > deploy_key << 'EOF'
-${{ secrets.SSH_KEY }}
-EOF
-          chmod 600 deploy_key
-          # remove possible Windows CRLFs that break libcrypto
-          sed -i 's/\r$//' deploy_key || true
-          eval "$(ssh-agent -s)"
-          # try to add key; if libcrypto/format error, attempt to convert to PEM and retry
-          if ! ssh-add deploy_key 2>/tmp/ssh_add_err; then
-            echo "ssh-add failed, attempting to convert key to PEM and retry"
-            ssh-keygen -p -N "" -m PEM -f deploy_key || true
-            ssh-add deploy_key
-          fi
-          rm -f deploy_key
-
-      - name: Copy files with scp
-        run: |
-          PORT="${{ secrets.SSH_PORT }}"
-          if [ -z "$PORT" ]; then PORT=22; fi
-          scp -P "$PORT" -o StrictHostKeyChecking=no -r ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
-
-      - name: Run remote deploy commands
-        run: |
-          PORT="${{ secrets.SSH_PORT }}"
-          if [ -z "$PORT" ]; then PORT=22; fi
-          DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
-          ssh -p "$PORT" -o StrictHostKeyChecking=no "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
-          set -e
-          cd "$DEPLOY_PATH"
-          docker build -t url-shortener:latest .
-          docker stop url-shortener || true
-          docker rm url-shortener || true
-          docker run -d --restart unless-stopped -p 80:5000 --name url-shortener url-shortener:latest
-          EOF
-
-
-
 
 
         
