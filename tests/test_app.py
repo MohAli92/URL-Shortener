@@ -43,5 +43,5 @@ def test_redirect_to_original_url(client):
 
     response = client.get(short_url, follow_redirects=False)
 
-    assert response.status_code == 30
+    assert response.status_code == 302
     assert "Location" in response.headers
