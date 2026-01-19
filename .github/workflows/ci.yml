@@ -53,9 +53,12 @@ jobs:
 
       # Use an SSH agent to load the private key and then use scp/ssh for file transfer
       - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.8.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+        run: |
+          printf "%s\n" "${{ secrets.SSH_KEY }}" > deploy_key
+          chmod 600 deploy_key
+          eval "$(ssh-agent -s)"
+          ssh-add deploy_key
+          rm -f deploy_key
 
       - name: Copy files with scp
         run: |
