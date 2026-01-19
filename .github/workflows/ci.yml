@@ -54,10 +54,19 @@ jobs:
       # Use an SSH agent to load the private key and then use scp/ssh for file transfer
       - name: Start ssh-agent and add key
         run: |
-          printf "%s\n" "${{ secrets.SSH_KEY }}" > deploy_key
+          cat > deploy_key << 'EOF'
+${{ secrets.SSH_KEY }}
+EOF
           chmod 600 deploy_key
+          # remove possible Windows CRLFs that break libcrypto
+          sed -i 's/\r$//' deploy_key || true
           eval "$(ssh-agent -s)"
-          ssh-add deploy_key
+          # try to add key; if libcrypto/format error, attempt to convert to PEM and retry
+          if ! ssh-add deploy_key 2>/tmp/ssh_add_err; then
+            echo "ssh-add failed, attempting to convert key to PEM and retry"
+            ssh-keygen -p -N "" -m PEM -f deploy_key || true
+            ssh-add deploy_key
+          fi
           rm -f deploy_key
 
       - name: Copy files with scp
